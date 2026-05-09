@@ -1,0 +1,1482 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>测一测，你的杭州人格是谁？</title>
+  <style>
+    :root {
+      --lake-blue: #86b7c8;
+      --tea-green: #a9c2a0;
+      --mist-green: #dbe8df;
+      --rice-white: #f8f4eb;
+      --ink: #2f3a38;
+      --subtle-ink: #5f6967;
+      --su-bg: #f6efe4;
+      --su-accent: #9f6f3f;
+      --longjing-bg: #edf5ee;
+      --longjing-accent: #4f8a68;
+      --card-shadow: 0 14px 36px rgba(44, 62, 54, 0.14);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "PingFang SC", "Noto Serif SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 20%, rgba(134, 183, 200, 0.18), transparent 38%),
+        radial-gradient(circle at 90% 80%, rgba(169, 194, 160, 0.2), transparent 36%),
+        linear-gradient(150deg, #f9f6f0 0%, #eef4f2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .translate-toggle {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 20;
+      border: 1px solid rgba(47, 58, 56, 0.2);
+      background: rgba(255, 255, 255, 0.92);
+      color: #2f3a38;
+      border-radius: 999px;
+      padding: 8px 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: .86rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(47, 58, 56, 0.15);
+      transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+    }
+
+    .translate-toggle:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 20px rgba(47, 58, 56, 0.22);
+      background: rgba(255, 255, 255, 1);
+    }
+
+    .translate-icon {
+      font-size: 1rem;
+      line-height: 1;
+    }
+
+    .app {
+      width: min(920px, 100%);
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.65);
+      backdrop-filter: blur(3px);
+      border-radius: 24px;
+      box-shadow: var(--card-shadow);
+      padding: clamp(20px, 4vw, 48px);
+      display: none;
+      animation: fadeIn .45s ease;
+    }
+
+    .card.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .kicker {
+      color: var(--subtle-ink);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-size: .8rem;
+      margin-bottom: 12px;
+    }
+
+    h1, h2, h3 {
+      margin-top: 0;
+      line-height: 1.35;
+      font-weight: 600;
+    }
+
+    h1 { font-size: clamp(1.65rem, 2.8vw, 2.35rem); }
+    h2 { font-size: clamp(1.35rem, 2.3vw, 1.85rem); }
+    h3 { font-size: clamp(1.05rem, 1.8vw, 1.35rem); }
+
+    p {
+      line-height: 1.8;
+      margin: 0 0 12px;
+      color: #394543;
+    }
+
+    .lead {
+      font-size: 1.02rem;
+      color: #33403e;
+    }
+
+    .cta {
+      margin-top: 22px;
+      border: none;
+      border-radius: 999px;
+      padding: 12px 24px;
+      font-size: 1rem;
+      cursor: pointer;
+      background: linear-gradient(120deg, var(--tea-green), var(--lake-blue));
+      color: #fff;
+      transition: transform .2s ease, box-shadow .2s ease;
+      box-shadow: 0 10px 22px rgba(109, 142, 133, .24);
+    }
+
+    .cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 28px rgba(109, 142, 133, .3);
+    }
+
+    .progress-wrap {
+      margin-bottom: 20px;
+    }
+
+    .progress-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      color: var(--subtle-ink);
+      font-size: .92rem;
+    }
+
+    .progress {
+      height: 8px;
+      background: rgba(169, 194, 160, 0.24);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar {
+      width: 0;
+      height: 100%;
+      background: linear-gradient(90deg, var(--lake-blue), var(--tea-green));
+      transition: width .35s ease;
+    }
+
+    .options {
+      display: grid;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .option-btn {
+      text-align: left;
+      width: 100%;
+      border: 1px solid rgba(134, 183, 200, 0.45);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.72);
+      padding: 16px;
+      color: #31403f;
+      font-size: 1rem;
+      line-height: 1.65;
+      cursor: pointer;
+      transition: all .18s ease;
+    }
+
+    .option-btn:hover {
+      border-color: rgba(79, 138, 104, 0.6);
+      transform: translateY(-1px);
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    .options-image {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .image-option {
+      padding: 0;
+      overflow: hidden;
+      border-radius: 16px;
+    }
+
+    .image-option img {
+      width: 100%;
+      aspect-ratio: 3 / 4;
+      object-fit: cover;
+      display: block;
+    }
+
+    .dots {
+      margin-top: 24px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(92, 121, 112, .22);
+    }
+
+    .dot.on {
+      background: var(--tea-green);
+      transform: scale(1.2);
+    }
+
+    .generating-list {
+      margin: 18px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .generating-list li {
+      padding: 12px 14px;
+      border-radius: 12px;
+      margin-bottom: 10px;
+      background: rgba(255, 255, 255, 0.66);
+      border: 1px solid rgba(169, 194, 160, .35);
+      color: #3a4846;
+      opacity: .35;
+      transform: translateY(6px);
+      transition: all .35s ease;
+    }
+
+    .generating-list li.active {
+      opacity: 1;
+      transform: translateY(0);
+      border-color: rgba(134, 183, 200, .65);
+    }
+
+    .tag-list {
+      margin: 16px 0 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .tag {
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: .9rem;
+      background: rgba(255, 255, 255, .75);
+      border: 1px solid rgba(47, 58, 56, .12);
+    }
+
+    .section {
+      margin: 18px 0;
+      padding: 16px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.62);
+      border: 1px solid rgba(79, 138, 104, .18);
+    }
+
+    .section h3 {
+      margin-bottom: 8px;
+    }
+
+    .result-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 16px;
+      padding: 8px;
+      border-radius: 14px;
+      background: rgba(47, 58, 56, 0.06);
+      border: 1px solid rgba(47, 58, 56, 0.1);
+    }
+
+    .result-tab-btn {
+      border: 1px solid rgba(95, 105, 103, 0.28);
+      background: rgba(255, 255, 255, 0.96);
+      color: #32403f;
+      border-radius: 10px;
+      padding: 9px 14px;
+      font-size: .88rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all .2s ease;
+    }
+
+    .result-tab-btn.active {
+      background: #2f3a38;
+      border-color: #2f3a38;
+      color: #fff;
+      box-shadow: 0 6px 14px rgba(47, 58, 56, .25);
+    }
+
+    .result-tab-pane {
+      display: none;
+    }
+
+    .result-tab-pane.active {
+      display: block;
+    }
+
+    .result-tab-pane .section:first-child {
+      margin-top: 0;
+    }
+
+    .story-block {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px dashed rgba(47, 58, 56, .16);
+    }
+
+    .story-block:first-of-type {
+      margin-top: 0;
+      padding-top: 0;
+      border-top: none;
+    }
+
+    .story-media {
+      margin: 0 0 10px;
+      border-radius: 14px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, .72);
+      border: 1px solid rgba(79, 138, 104, .2);
+    }
+
+    .story-media img {
+      width: 100%;
+      display: block;
+      max-height: 320px;
+      object-fit: cover;
+    }
+
+    .story-title {
+      margin: 0 0 8px;
+      font-size: .96rem;
+      color: #334240;
+    }
+
+    .route-step {
+      margin: 12px 0;
+      padding-left: 10px;
+      border-left: 2px solid rgba(95, 105, 103, .24);
+    }
+
+    .route-step h4 {
+      margin: 0 0 4px;
+      font-size: 1rem;
+      color: #374542;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    li {
+      margin: 5px 0;
+      line-height: 1.7;
+    }
+
+    .result-sushi {
+      background:
+        linear-gradient(170deg, rgba(246, 239, 228, 0.9), rgba(251, 246, 238, 0.84)),
+        radial-gradient(circle at 80% 18%, rgba(159, 111, 63, 0.13), transparent 40%);
+      border: 1px solid rgba(159, 111, 63, .2);
+    }
+
+    .result-baisuzhen {
+      background:
+        linear-gradient(170deg, rgba(236, 241, 251, 0.94), rgba(243, 247, 253, 0.84)),
+        radial-gradient(circle at 22% 14%, rgba(112, 134, 184, 0.16), transparent 36%);
+      border: 1px solid rgba(112, 134, 184, .24);
+    }
+
+    .result-qianlong {
+      background:
+        linear-gradient(170deg, rgba(237, 245, 238, 0.94), rgba(243, 249, 245, 0.82)),
+        radial-gradient(circle at 15% 12%, rgba(79, 138, 104, 0.16), transparent 36%);
+      border: 1px solid rgba(79, 138, 104, .24);
+    }
+
+    .result-yangwanli {
+      background:
+        linear-gradient(170deg, rgba(243, 239, 248, 0.94), rgba(248, 245, 251, 0.84)),
+        radial-gradient(circle at 84% 16%, rgba(149, 117, 173, 0.15), transparent 38%);
+      border: 1px solid rgba(149, 117, 173, .24);
+    }
+
+    .result-suxiaoxiao {
+      background:
+        linear-gradient(170deg, rgba(250, 240, 244, 0.94), rgba(252, 246, 249, 0.84)),
+        radial-gradient(circle at 78% 14%, rgba(184, 120, 152, 0.15), transparent 38%);
+      border: 1px solid rgba(184, 120, 152, .24);
+    }
+
+    .final-line {
+      margin-top: 20px;
+      font-size: 1.05rem;
+      color: #2f3f3c;
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.6);
+      border: 1px dashed rgba(47, 58, 56, .2);
+    }
+
+    .restart {
+      margin-top: 18px;
+      border: none;
+      background: transparent;
+      color: #4f8a68;
+      cursor: pointer;
+      font-size: .95rem;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 14px;
+      }
+
+      .card {
+        border-radius: 18px;
+      }
+
+      .options-image {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="translate-toggle" id="translateBtn" type="button" aria-label="Translate interface">
+    <span class="translate-icon" aria-hidden="true">🌐</span>
+    <span id="translateBtnLabel">EN</span>
+  </button>
+  <main class="app">
+    <section class="card active" data-page="cover">
+      <div class="kicker">Hangzhou Personality Campaign</div>
+      <h1>测一测 你的杭州人格是?</h1>
+      <p class="lead">在西湖、诗意与杭帮菜之间，<br>找到你进入杭州文化的方式。</p>
+      <p>回答几个问题，生成属于你的杭州人格、旅行路线与味觉推荐。</p>
+      <button class="cta" id="startBtn">开始测试</button>
+      <div class="dots" aria-hidden="true">
+        <span class="dot on"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      </div>
+    </section>
+
+    <section class="card" data-page="quiz">
+      <div class="progress-wrap">
+        <div class="progress-top">
+          <span id="stepText">第 1 / 7 题</span>
+          <span id="stepHint">选择更接近你的选项</span>
+        </div>
+        <div class="progress"><div class="bar" id="progressBar"></div></div>
+      </div>
+      <h2 id="questionTitle"></h2>
+      <div class="options" id="optionsWrap"></div>
+    </section>
+
+    <section class="card" data-page="generating">
+      <div class="kicker">Analyzing</div>
+      <h2>正在为你生成杭州人格……</h2>
+      <ul class="generating-list">
+        <li id="gen1">正在匹配你的西湖节奏</li>
+        <li id="gen2">正在分析你的江南偏好</li>
+        <li id="gen3">正在寻找最适合你的杭州入口</li>
+      </ul>
+    </section>
+
+    <section class="card result-sushi" data-page="result-sushi">
+      <div class="kicker">Result A</div>
+      <h1>你的杭州人格是：苏轼</h1>
+      <p class="lead">你进入一座城市的方式，从来不是打卡，而是寻找它被写下、被建成、被记住的痕迹。</p>
+      <div class="tag-list">
+        <span class="tag">有文化厚度</span>
+        <span class="tag">喜欢历史和人物</span>
+        <span class="tag">会被典故打动</span>
+        <span class="tag">喜欢慢慢理解一座城市</span>
+        <span class="tag">看重时间感与记忆感</span>
+      </div>
+
+      <div class="section">
+        <h3>人格解析</h3>
+        <p>你更容易被人物、历史、典故、文化厚度打动。对你来说，杭州不只是“好看”，它更像是一座被人一步步塑造出来的城市：有人在这里写诗，有人在这里做官，有人在这里留下名字。而你想顺着这些痕迹，去理解西湖。</p>
+      </div>
+
+      <div class="section">
+        <h3>人物介绍</h3>
+        <p>苏轼不仅是写下西湖名句的人，也是杭州文化记忆中最重要的人物之一。对很多人来说，西湖之所以不只是风景，也正因为它总和苏轼这样的名字连在一起：被观看、被书写，也被留在现实空间里。</p>
+      </div>
+
+      <div class="section">
+        <h3>推荐菜：东坡肉</h3>
+        <p>这道菜适合你，不只是因为它有名。它更像是一种把杭州的人文气质浓缩进味道里的方式。东坡肉对应的，是一种更厚重、更沉静、更有人物感的杭州。它带着文人记忆、历史痕迹，也带着“慢下来才能体会”的层次。</p>
+      </div>
+
+      <div class="section">
+        <h3>推荐旅游路线</h3>
+        <p><strong>苏东坡纪念馆 → 苏堤漫步 → 花港观鱼 / 雷峰塔周边 → 传统杭帮菜餐厅</strong></p>
+        <p>这条路线适合慢慢走。它不是为了最快看到最多景点，而是为了让你先进入“人”的历史，再回到“湖”的风景。</p>
+        <div class="route-step">
+          <h4>苏东坡纪念馆</h4>
+          <p>从这里开始，你会先遇到“人”。在进入西湖的景之前，先进入苏轼留下的文化痕迹。</p>
+        </div>
+        <div class="route-step">
+          <h4>苏堤漫步</h4>
+          <p>沿着苏堤慢慢走，你会更容易把西湖看成一处被塑造、被命名、被书写过的空间。</p>
+        </div>
+        <div class="route-step">
+          <h4>花港观鱼 / 雷峰塔周边停留</h4>
+          <p>不需要太赶，把历史感重新放回现实空间，感受杭州层层叠叠的时间感。</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>推荐饭店</h3>
+        <p><strong>味庄 / 传统杭帮菜老牌餐厅</strong></p>
+        <p>你更适合去强调经典杭帮菜、传统感较强、适合慢慢坐下来吃一顿饭的地方。</p>
+        <ul>
+          <li>经典</li>
+          <li>稳重</li>
+          <li>有来历</li>
+          <li>可以慢慢坐下来感受</li>
+        </ul>
+      </div>
+
+      <p class="final-line"><strong>你适合的杭州，不是第一眼就结束的杭州。</strong> 你会在故事里看风景，也会在风景里继续寻找人。</p>
+      <button class="restart" data-restart>重新测试</button>
+    </section>
+
+    <section class="card result-baisuzhen" data-page="result-baisuzhen">
+      <div class="kicker">Result B</div>
+      <h1>你的杭州人格是：白素贞</h1>
+      <p class="lead">你会先走进烟雨里的桥和塔，再把这座城的光、水和故事慢慢收进记忆。</p>
+      <div class="tag-list">
+        <span class="tag">雨中湖桥</span>
+        <span class="tag">塔影与水色</span>
+        <span class="tag">偏爱清润口感</span>
+        <span class="tag">喜欢慢慢走的路线</span>
+        <span class="tag">江南传说气息</span>
+      </div>
+
+      <div class="section">
+        <h3>人格解析</h3>
+        <p>你对杭州的偏好，常常落在桥、雨、湖面和塔影之间。你不急着把景点看完，更愿意把脚步放慢，在细雨和水汽里找到西湖最耐看的层次。</p>
+      </div>
+
+      <div class="section">
+        <h3>人物介绍</h3>
+        <p>白素贞是西湖文化中最具辨识度的人物之一。断桥、雷峰塔与湖上烟雨，把她的故事长期留在杭州的空间想象里，也让“西湖”不仅是风景，更是一段会被反复讲述的城市记忆。</p>
+      </div>
+
+      <div class="section">
+        <h3>推荐菜：清汤鱼圆</h3>
+        <p>这道菜入口清润、质地柔滑，和你偏爱的雨景西湖很契合。它不抢味，却很耐吃，像湖面薄雾一样把细节慢慢展开。</p>
+      </div>
+
+      <div class="section">
+        <h3>推荐旅游路线</h3>
+        <p><strong>断桥残雪一带 → 白堤沿线 → 雷峰塔远眺点 → 湖边晚餐</strong></p>
+        <p>这条路线强调“桥—湖—塔”的连续视野。天气有一点水汽时，会更接近你想要的西湖气质。</p>
+        <div class="route-step">
+          <h4>断桥一带</h4>
+          <p>先从桥面与湖面的关系开始，适合边走边看，不需要太快。</p>
+        </div>
+        <div class="route-step">
+          <h4>白堤沿线</h4>
+          <p>路段平缓、视野开阔，树影和水面交替出现，适合停停走走。</p>
+        </div>
+        <div class="route-step">
+          <h4>雷峰塔远眺点</h4>
+          <p>把塔影放进远景，桥和湖的画面会更完整。</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>推荐饭店</h3>
+        <p><strong>西湖边临水杭帮菜餐厅</strong></p>
+        <p>更适合选窗边位置，能同时看到湖面和行人，把吃饭和看景连起来。</p>
+        <ul>
+          <li>视野开阔</li>
+          <li>清润口味</li>
+          <li>适合雨天或傍晚</li>
+          <li>离湖边步行线近</li>
+        </ul>
+      </div>
+
+      <p class="final-line"><strong>你适合的杭州，是雨丝落在桥面上的杭州。</strong> 你会在水光与塔影之间，记住它最柔软的一面。</p>
+      <button class="restart" data-restart>重新测试</button>
+    </section>
+
+    <section class="card result-qianlong" data-page="result-qianlong">
+      <div class="kicker">Result C</div>
+      <h1>你的杭州人格是：乾隆</h1>
+      <p class="lead">你记住一座城市的方式，不是靠它说了什么，而是靠它留给你的茶香、山路和那种被精心安放过的清雅。</p>
+      <div class="tag-list">
+        <span class="tag">清雅</span>
+        <span class="tag">细腻</span>
+        <span class="tag">注重氛围</span>
+        <span class="tag">喜欢自然与留白</span>
+        <span class="tag">对茶和审美敏感</span>
+      </div>
+
+      <div class="section">
+        <h3>人格解析</h3>
+        <p>你更容易被氛围、细节、清雅、山水与审美感打动。对你来说，杭州最迷人的地方，不是厚重地告诉你“它有多重要”，而是让你在茶香、山路、景色和一顿饭里，慢慢体会到这座城市很轻、很稳、很讲究的一面。</p>
+      </div>
+
+      <div class="section">
+        <h3>人物介绍</h3>
+        <p>乾隆与杭州、西湖的关系，更多不在于“创造”这片风景，而在于他通过南巡、题咏与品茶，把西湖和龙井茶一起放进了更讲究、清雅、可细细游赏的江南想象里。</p>
+        <div class="story-block">
+          <h4 class="story-title">十八颗御茶树</h4>
+          <figure class="story-media">
+            <img src="御茶树.jpeg" alt="龙井御茶树">
+          </figure>
+          <p>“十八棵御茶”是乾隆与杭州最有名的龙井典故之一。相传乾隆南巡到龙井时，曾在狮峰山下胡公庙前采茶，后来将当地十八棵茶树封为“御茶”，并令其岁岁采制、进贡宫中。也因为这个故事，龙井茶不再只是杭州的一种茶，而渐渐成了西湖山水、茶香与清雅审美的一部分。</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>推荐菜：龙井虾仁</h3>
+        <p>这道菜适合你，是因为它几乎把杭州最清雅的一面都放进去了：茶、春天、轻盈、细节、不过度张扬的鲜味。它不是很厚重，却很讲究；不是很热闹，却很容易让人记住。这就是你会喜欢的杭州。</p>
+      </div>
+
+      <div class="section">
+        <h3>推荐旅游路线</h3>
+        <p><strong>中国茶叶博物馆双峰馆区 → 龙井路周边茶园视野 → 西湖边安静停留 → 清雅型杭帮菜餐厅</strong></p>
+        <p>这条路线不是为了“看完”，而是为了让你进入杭州更轻、更细的那一层。你适合从茶开始，从山路开始，再慢慢回到湖边。</p>
+        <div class="route-step">
+          <h4>中国茶叶博物馆双峰馆区</h4>
+          <p>从茶开始认识杭州，会很适合你。这里像是一把钥匙，让你先进入龙井、西湖与杭州气质之间的联系。</p>
+        </div>
+        <div class="route-step">
+          <h4>龙井路周边茶园视野</h4>
+          <p>这里不是很强烈、很热闹的景，但很适合会被细节和氛围打动的人。</p>
+        </div>
+        <div class="route-step">
+          <h4>西湖边安静停留</h4>
+          <p>不需要密集打卡，让风、光和茶香慢慢进入记忆。你适合的是会留白的杭州。</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>推荐饭店</h3>
+        <p><strong>山外山 / 清雅型杭帮菜餐厅</strong></p>
+        <p>你更适合去环境与菜都偏清雅、和山水园林关系更近的餐厅。</p>
+        <ul>
+          <li>清雅</li>
+          <li>留白</li>
+          <li>细腻</li>
+          <li>季节感</li>
+          <li>景和味道都刚刚好</li>
+        </ul>
+      </div>
+
+      <p class="final-line"><strong>你适合的杭州，不需要说得太满。</strong> 你会在茶香、山路和轻一点的味道里，认出它真正动人的地方。</p>
+      <button class="restart" data-restart>重新测试</button>
+    </section>
+
+    <section class="card result-yangwanli" data-page="result-yangwanli">
+      <div class="kicker">Result D</div>
+      <h1>你的杭州人格是：杨万里</h1>
+      <p class="lead">你记住一座城市的方式，更像记住一幅画面：风、荷叶、光和那个刚好属于西湖的夏天。</p>
+      <div class="tag-list">
+        <span class="tag">感性</span>
+        <span class="tag">季节感强</span>
+        <span class="tag">会被诗句和意境打动</span>
+        <span class="tag">喜欢轻盈与留白</span>
+        <span class="tag">通过画面记住城市</span>
+      </div>
+
+      <div class="section">
+        <h3>人格解析</h3>
+        <p>你更容易被画面、季节、诗意与意境打动。对你来说，杭州最迷人的地方，不一定是最有分量的历史，而是某个刚刚好的瞬间：风吹过荷叶、水面泛光、景色轻轻成立。你理解西湖的方式，更像是在感受它，而不是定义它。</p>
+      </div>
+
+      <div class="section">
+        <h3>人物介绍</h3>
+        <p>杨万里写下了很多人一想到西湖荷花就会想起的诗句。对你来说，西湖最动人的地方，也正是这种被诗留住的季节感：不是抽象的“美”，而是一种很具体、很有画面感的夏日西湖。</p>
+      </div>
+
+      <div class="section">
+        <h3>推荐菜：龙井虾仁</h3>
+        <p>这道菜适合你，不是因为它最厚重，而是因为它够轻、够鲜、够像西湖留给人的那种清亮感。对你来说，杭州的味道更像一幅有空气感的画，而龙井虾仁正好保留了这种轻盈、细腻和季节气息。</p>
+      </div>
+
+      <div class="section">
+        <h3>推荐旅游路线</h3>
+        <p><strong>曲院风荷 → 湖边荷花与夏日观景路线 → 安静停留点 → 更有景观感与诗意感的餐厅</strong></p>
+        <p>这条路线适合在夏天或有荷景的时候体验。你不需要很满的安排，你更适合顺着画面、光线和风去记住西湖。</p>
+        <div class="route-step">
+          <h4>曲院风荷</h4>
+          <p>从荷花开始认识西湖，会非常适合你。这里让“诗意”不是一句话，而是可以被真实看到的画面。</p>
+        </div>
+        <div class="route-step">
+          <h4>湖边荷花与夏日观景路线</h4>
+          <p>你适合顺着季节去看西湖，而不是只看最标准的景点。</p>
+        </div>
+        <div class="route-step">
+          <h4>安静停留点</h4>
+          <p>对你来说，杭州最动人的时刻往往发生在停下来之后。给风景一点时间，它才会真正进入记忆。</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>推荐饭店</h3>
+        <p><strong>西湖边更偏景观与诗意感的餐厅</strong></p>
+        <p>你更适合去环境里有空气感、有季节感、坐下来就像继续待在风景里的餐厅。</p>
+        <ul>
+          <li>轻盈</li>
+          <li>有画面感</li>
+          <li>季节感强</li>
+          <li>适合慢慢看景</li>
+          <li>吃饭像在延续一段西湖记忆</li>
+        </ul>
+      </div>
+
+      <p class="final-line"><strong>你适合的杭州，是会突然在一个瞬间成立的杭州。</strong> 你会先记住风景里的诗意，再慢慢记住这座城。</p>
+      <button class="restart" data-restart>重新测试</button>
+    </section>
+
+    <section class="card result-suxiaoxiao" data-page="result-suxiaoxiao">
+      <div class="kicker">Result E</div>
+      <h1>你的杭州人格是：苏小小</h1>
+      <p class="lead">你偏爱的杭州，常常藏在桥边柳影、短短石阶和可以久坐的茶点时光里。</p>
+      <div class="tag-list">
+        <span class="tag">西泠桥与孤山</span>
+        <span class="tag">柳色与水边小路</span>
+        <span class="tag">桂花与茶点</span>
+        <span class="tag">慢步与停留</span>
+        <span class="tag">轻柔而细致</span>
+      </div>
+
+      <div class="section">
+        <h3>人格解析</h3>
+        <p>你更适合从小尺度的景进入杭州：一座桥、一段湖边窄路、一处能坐下来的窗边位置。你不追求铺满行程，而是把注意力放在细节和停留时间上。</p>
+      </div>
+
+      <div class="section">
+        <h3>人物介绍</h3>
+        <p>苏小小是杭州地方记忆中非常鲜明的人物。西泠桥与相关传说让她长期与西湖相连，也让这座城市除了山水与名胜之外，多了一层温柔、轻巧、可回望的文化气质。</p>
+      </div>
+
+      <div class="section">
+        <h3>推荐菜：桂花藕粉</h3>
+        <p>桂花藕粉清甜柔滑、香气轻，适合慢慢吃。它和你偏好的步调一致：不需要太强烈，却能把杭州的细腻留在口中很久。</p>
+      </div>
+
+      <div class="section">
+        <h3>推荐旅游路线</h3>
+        <p><strong>西泠桥 → 孤山小路 → 湖边茶点停留 → 黄昏时分慢步返回</strong></p>
+        <p>路线不求长，重点在于沿线的树影、水面和可停留的空间。</p>
+        <div class="route-step">
+          <h4>西泠桥</h4>
+          <p>从桥边开始，把节奏慢下来，先看水面和柳枝的变化。</p>
+        </div>
+        <div class="route-step">
+          <h4>孤山小路</h4>
+          <p>路段安静，适合边走边看，不需要密集打卡。</p>
+        </div>
+        <div class="route-step">
+          <h4>茶点停留</h4>
+          <p>找一个靠窗的位置坐一会儿，让风景和味道自然衔接。</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>推荐饭店</h3>
+        <p><strong>湖边茶点与轻食小馆</strong></p>
+        <p>适合选择空间不大、安静、可久坐的店，重点是窗边视野和轻口味。</p>
+        <ul>
+          <li>桂花系甜点</li>
+          <li>轻食与热茶</li>
+          <li>靠近湖边步行线</li>
+          <li>节奏从容</li>
+        </ul>
+      </div>
+
+      <p class="final-line"><strong>你适合的杭州，是桥边柳影里慢慢展开的杭州。</strong> 你会在细小的景和轻柔的味道里，把它记得很久。</p>
+      <button class="restart" data-restart>重新测试</button>
+    </section>
+  </main>
+
+  <script>
+    const questions = [
+      {
+        title: "1. 初到西湖，你最想把脚步先落在哪一处？",
+        options: [
+          {
+            text: "A. 先去苏堤附近走一段。湖面在一侧铺开，树影落在路上，远处还能看见桥和塔。",
+            score: { sushi: 2, yangwanli: 1 }
+          },
+          {
+            text: "B. 往山边和茶田的方向走。石阶有点潮，路旁是茶树，风从林子里穿过来。",
+            score: { qianlong: 2, yangwanli: 1 }
+          },
+          {
+            text: "C. 去看荷花。水面、荷叶、阳光和风都在同一个画面里，停一会儿就够了。",
+            score: { yangwanli: 2, qianlong: 1 }
+          },
+          {
+            text: "D. 从断桥一带开始。湖面有雾，桥上有人来往，雷峰塔在远处露出一点轮廓。",
+            score: { baisuzhen: 2, sushi: 1 }
+          },
+          {
+            text: "E. 去西泠桥和孤山附近慢慢走。桥边有柳，路不长，适合一路看水和树。",
+            score: { suxiaoxiao: 2, baisuzhen: 1 }
+          }
+        ]
+      },
+      {
+        title: "2. 哪一种文字里的西湖，更接近你想去的杭州？",
+        options: [
+          {
+            text: "A. 水光潋滟晴方好，山色空蒙雨亦奇。欲把西湖比西子，淡妆浓抹总相宜。—— 苏轼",
+            score: { sushi: 2, qianlong: 1 }
+          },
+          {
+            text: "B. 毕竟西湖六月中，风光不与四时同。接天莲叶无穷碧，映日荷花别样红。—— 杨万里",
+            score: { yangwanli: 2, qianlong: 1 }
+          },
+          {
+            text: "C. 山路、茶盏、龙井、树影。走一段，坐一会儿，再喝一口热茶。",
+            score: { qianlong: 2, sushi: 1 }
+          },
+          {
+            text: "D. 细雨落在桥面上，湖边有人撑伞经过，塔影在远处慢慢变淡。",
+            score: { baisuzhen: 2, suxiaoxiao: 1 }
+          },
+          {
+            text: "E. 妾乘油壁车，郎骑青骢马。何处结同心，西陵松柏下。",
+            score: { suxiaoxiao: 2, baisuzhen: 1 }
+          }
+        ]
+      },
+      {
+        title: "3. 如果让杭州留给你一种味道，你更希望它是什么样的？",
+        options: [
+          {
+            text: "A. 一块慢火烧出来的肉。颜色深，酱汁浓，入口软，最后还留着一点甜。",
+            score: { sushi: 2, baisuzhen: 1 }
+          },
+          {
+            text: "B. 一道带茶香的菜。虾仁很清，茶叶浮在旁边，盘子里是浅浅的绿和白。",
+            score: { qianlong: 2, yangwanli: 1 }
+          },
+          {
+            text: "C. 夏天湖边的一餐。菜不重，窗外有荷叶，杯子上有水汽。",
+            score: { yangwanli: 2, qianlong: 1 }
+          },
+          {
+            text: "D. 一碗清汤。颜色很淡，入口滑，像刚下过雨的湖边。",
+            score: { baisuzhen: 2, suxiaoxiao: 1 }
+          },
+          {
+            text: "E. 一碗桂花藕粉。透明、微甜、软软的，勺子搅开时有淡淡的桂花香。",
+            score: { suxiaoxiao: 2, yangwanli: 1 }
+          }
+        ]
+      },
+      {
+        title: "4. 下面哪一种西湖的一天，更接近你理想中的杭州？",
+        options: [
+          {
+            text: "A. 上午去一处纪念馆或旧址，中午吃一顿杭帮菜，下午再回到湖边走一段。",
+            score: { sushi: 2, qianlong: 1 }
+          },
+          {
+            text: "B. 早上去茶园，沿山路走到一处能坐下来的地方。桌上有茶，旁边有树影。",
+            score: { qianlong: 2, sushi: 1 }
+          },
+          {
+            text: "C. 挑一个荷花开的日子出门。清早看水面，中午找阴凉处坐下，傍晚再沿湖走回去。",
+            score: { yangwanli: 2, suxiaoxiao: 1 }
+          },
+          {
+            text: "D. 下小雨的时候去断桥，再往雷峰塔方向走。路上不赶时间，只看伞、湖水和塔影。",
+            score: { baisuzhen: 2, sushi: 1 }
+          },
+          {
+            text: "E. 在西泠桥和孤山附近慢慢晃。看看桥、树、石阶和湖边的小路，再找地方坐下吃点东西。",
+            score: { suxiaoxiao: 2, baisuzhen: 1 }
+          }
+        ]
+      },
+      {
+        title: "5. 你更想把哪一种画面带走？",
+        options: [
+          {
+            text: "A. 一条长堤，湖水在旁边，石碑和旧字藏在树影后面。",
+            score: { sushi: 2, suxiaoxiao: 1 }
+          },
+          {
+            text: "B. 雨后的山色，茶盏上冒着热气，桌面旁边落着几片叶子。",
+            score: { qianlong: 2, yangwanli: 1 }
+          },
+          {
+            text: "C. 风从荷叶上掠过去，水面亮了一下，花和叶子在阳光里铺开。",
+            score: { yangwanli: 2, qianlong: 1 }
+          },
+          {
+            text: "D. 桥面被雨打湿，远处塔影很淡，湖边只有零散的脚步声。",
+            score: { baisuzhen: 2, sushi: 1 }
+          },
+          {
+            text: "E. 桥边柳枝垂下来，湖边路很窄，走过去时衣角轻轻碰到树影。",
+            score: { suxiaoxiao: 2, yangwanli: 1 }
+          }
+        ]
+      },
+      {
+        title: "6. 如果在杭州选一顿饭，你更想把它放进什么样的画面里？",
+        options: [
+          {
+            text: "A. 老馆子里一张木桌，桌上有东坡肉、热汤和几道杭帮菜，窗外是安静的街。",
+            score: { sushi: 2, qianlong: 1 }
+          },
+          {
+            text: "B. 临山或近园林的餐厅，菜色清淡，盘子不大，抬头能看见树影和天光。",
+            score: { qianlong: 2, yangwanli: 1 }
+          },
+          {
+            text: "C. 湖边有荷花的季节，桌上是清爽的菜，窗外有风，吃完还能继续散步。",
+            score: { yangwanli: 2, suxiaoxiao: 1 }
+          },
+          {
+            text: "D. 西湖边下着雨，桌上是一碗热汤或茶点，窗外能看见桥、塔和湖水。",
+            score: { baisuzhen: 2, sushi: 1 }
+          },
+          {
+            text: "E. 小小的茶点空间，桌上有桂花藕粉、糕点和茶，窗边位置可以坐很久。",
+            score: { suxiaoxiao: 2, baisuzhen: 1 }
+          }
+        ]
+      },
+      {
+        title: "7. 以下哪个景象最符合你想体验的杭州?",
+        type: "image-grid",
+        options: [
+          {
+            text: "茶园图",
+            image: "茶田.jpg",
+            score: { qianlong: 2 },
+            tieKey: "qianlong"
+          },
+          {
+            text: "树荫西湖路图",
+            image: "南山路.jpg",
+            score: { baisuzhen: 1, suxiaoxiao: 2 },
+            tieKey: ["suxiaoxiao", "baisuzhen"]
+          },
+          {
+            text: "荷花图",
+            image: "荷花.jpg",
+            score: { yangwanli: 2 },
+            tieKey: "yangwanli"
+          },
+          {
+            text: "湖面远塔图",
+            image: "西湖.jpg",
+            score: { sushi: 2, baisuzhen: 1 },
+            tieKey: "sushi"
+          }
+        ]
+      }
+    ];
+
+    const questionsEn = [
+      {
+        title: "1. When you first arrive at West Lake, where do you want your first steps to land?",
+        options: [
+          { text: "A. Walk near Su Causeway first. The lake spreads on one side, tree shadows fall on the road, and you can see bridges and a pagoda in the distance.", score: { sushi: 2, yangwanli: 1 } },
+          { text: "B. Head toward the hillside and tea fields. The steps are slightly damp, tea bushes line the path, and wind moves through the trees.", score: { qianlong: 2, yangwanli: 1 } },
+          { text: "C. Go see lotus flowers. Water, lotus leaves, sunlight, and wind all sit in one frame; pausing there is enough.", score: { yangwanli: 2, qianlong: 1 } },
+          { text: "D. Start around Broken Bridge. There is mist on the lake, people crossing the bridge, and a faint outline of Leifeng Pagoda far away.", score: { baisuzhen: 2, sushi: 1 } },
+          { text: "E. Walk slowly near Xiling Bridge and Solitary Hill. Willows by the bridge, short paths, and plenty of water and trees to watch.", score: { suxiaoxiao: 2, baisuzhen: 1 } }
+        ]
+      },
+      {
+        title: "2. Which kind of writing about West Lake feels closest to the Hangzhou you want?",
+        options: [
+          { text: "A. \"The shimmering lake in sunshine is just right, and the misty hills in rain are wondrous too...\" — Su Shi", score: { sushi: 2, qianlong: 1 } },
+          { text: "B. \"After all, West Lake in June is unlike any other season...\" — Yang Wanli", score: { yangwanli: 2, qianlong: 1 } },
+          { text: "C. Mountain paths, tea cups, Longjing tea, and tree shadows. Walk a little, sit a while, then drink a warm sip.", score: { qianlong: 2, sushi: 1 } },
+          { text: "D. Drizzle on the bridge deck, someone passing with an umbrella, and a pagoda silhouette fading in the distance.", score: { baisuzhen: 2, suxiaoxiao: 1 } },
+          { text: "E. \"I ride in an oil-wall carriage, you ride a blue horse...\" (Su Xiaoxiao verse)", score: { suxiaoxiao: 2, baisuzhen: 1 } }
+        ]
+      },
+      {
+        title: "3. If Hangzhou leaves one flavor with you, what do you want it to be?",
+        options: [
+          { text: "A. A slow-braised piece of meat: deep color, rich sauce, soft texture, and a little sweetness at the end.", score: { sushi: 2, baisuzhen: 1 } },
+          { text: "B. A tea-scented dish: clean shrimp, tea leaves beside it, with pale greens and whites on the plate.", score: { qianlong: 2, yangwanli: 1 } },
+          { text: "C. A summer lakeside meal: light dishes, lotus leaves outside, and moisture on the cup.", score: { yangwanli: 2, qianlong: 1 } },
+          { text: "D. A bowl of clear soup: very light in color, smooth on the tongue, like the lake right after rain.", score: { baisuzhen: 2, suxiaoxiao: 1 } },
+          { text: "E. Osmanthus lotus root starch: translucent, mildly sweet, soft, with a faint osmanthus aroma when stirred.", score: { suxiaoxiao: 2, yangwanli: 1 } }
+        ]
+      },
+      {
+        title: "4. Which kind of day at West Lake is closest to your ideal Hangzhou?",
+        options: [
+          { text: "A. Visit a memorial site in the morning, have a Hangzhou meal at noon, then return to the lakeside for a walk in the afternoon.", score: { sushi: 2, qianlong: 1 } },
+          { text: "B. Go to tea gardens early, follow the mountain path to a place to sit, with tea on the table and tree shadows nearby.", score: { qianlong: 2, sushi: 1 } },
+          { text: "C. Go out on a day when lotus flowers are open: watch the water early, sit in shade at noon, and walk along the lake again at dusk.", score: { yangwanli: 2, suxiaoxiao: 1 } },
+          { text: "D. Visit Broken Bridge in light rain, then walk toward Leifeng Pagoda without rushing, just watching umbrellas, lake water, and pagoda shadows.", score: { baisuzhen: 2, sushi: 1 } },
+          { text: "E. Wander near Xiling Bridge and Solitary Hill, looking at bridges, trees, steps, and narrow lakeside paths, then sit down for a bite.", score: { suxiaoxiao: 2, baisuzhen: 1 } }
+        ]
+      },
+      {
+        title: "5. Which scene would you most like to take away with you?",
+        options: [
+          { text: "A. A long causeway with lake water beside it, and old inscriptions hidden behind tree shadows.", score: { sushi: 2, suxiaoxiao: 1 } },
+          { text: "B. Mountains after rain, steam rising from a teacup, and a few leaves resting beside the table.", score: { qianlong: 2, yangwanli: 1 } },
+          { text: "C. Wind brushing over lotus leaves, the water flashing for a second, flowers and leaves opening under sunlight.", score: { yangwanli: 2, qianlong: 1 } },
+          { text: "D. A rain-wet bridge deck, faint pagoda silhouette in the distance, and sparse footsteps by the lake.", score: { baisuzhen: 2, sushi: 1 } },
+          { text: "E. Willow branches hanging by the bridge, a narrow lakeside path, and your sleeve touching the moving shadows.", score: { suxiaoxiao: 2, yangwanli: 1 } }
+        ]
+      },
+      {
+        title: "6. If you choose one meal in Hangzhou, what scene do you want it to belong to?",
+        options: [
+          { text: "A. A wooden table in an old restaurant, with Dongpo pork, hot soup, and classic Hangzhou dishes; quiet streets outside.", score: { sushi: 2, qianlong: 1 } },
+          { text: "B. A restaurant near hills or gardens, light dishes and modest plates, with tree shadows and daylight visible above.", score: { qianlong: 2, yangwanli: 1 } },
+          { text: "C. Lotus season by the lake, refreshing dishes on the table, breeze outside, and a post-meal walk.", score: { yangwanli: 2, suxiaoxiao: 1 } },
+          { text: "D. Rain by West Lake, a bowl of hot soup or tea snacks on the table, and bridge, pagoda, and lake outside the window.", score: { baisuzhen: 2, sushi: 1 } },
+          { text: "E. A small tea-snack space with osmanthus lotus starch, pastries, and tea, and a window seat where you can sit for a long time.", score: { suxiaoxiao: 2, baisuzhen: 1 } }
+        ]
+      },
+      {
+        title: "7. Which scene best matches the Hangzhou you want to experience?",
+        type: "image-grid",
+        options: [
+          { text: "Tea Field", image: "茶田.jpg", score: { qianlong: 2 }, tieKey: "qianlong" },
+          { text: "Shaded West Lake Road", image: "南山路.jpg", score: { baisuzhen: 1, suxiaoxiao: 2 }, tieKey: ["suxiaoxiao", "baisuzhen"] },
+          { text: "Lotus Pond", image: "荷花.jpg", score: { yangwanli: 2 }, tieKey: "yangwanli" },
+          { text: "Lake with Distant Pagoda", image: "西湖.jpg", score: { sushi: 2, baisuzhen: 1 }, tieKey: "sushi" }
+        ]
+      }
+    ];
+
+    const cards = [...document.querySelectorAll(".card")];
+    const startBtn = document.getElementById("startBtn");
+    const translateBtn = document.getElementById("translateBtn");
+    const translateBtnLabel = document.getElementById("translateBtnLabel");
+    const questionTitle = document.getElementById("questionTitle");
+    const optionsWrap = document.getElementById("optionsWrap");
+    const progressBar = document.getElementById("progressBar");
+    const stepText = document.getElementById("stepText");
+    const stepHint = document.getElementById("stepHint");
+    const restartButtons = [...document.querySelectorAll("[data-restart]")];
+    const generatingItems = [
+      document.getElementById("gen1"),
+      document.getElementById("gen2"),
+      document.getElementById("gen3")
+    ];
+
+    const tiePriority = ["sushi", "qianlong", "yangwanli", "baisuzhen", "suxiaoxiao"];
+    const textNodes = [];
+    let currentLang = "zh";
+    let current = 0;
+    let scores = { sushi: 0, qianlong: 0, yangwanli: 0, baisuzhen: 0, suxiaoxiao: 0 };
+    let lastImageChoice = null;
+    const tabLabels = {
+      zh: { profile: "人格解析", food: "食物推荐", route: "旅游路线推荐" },
+      en: { profile: "Personality", food: "Food", route: "Route" }
+    };
+
+    const staticTextMap = {
+      "测一测 你的杭州人格是?": "Find Your Hangzhou Persona",
+      "在西湖、诗意与杭帮菜之间，": "Between West Lake, poetry, and Hangzhou cuisine,",
+      "找到你进入杭州文化的方式。": "find your own way into Hangzhou culture.",
+      "回答几个问题，生成属于你的杭州人格、旅行路线与味觉推荐。": "Answer a few questions to generate your Hangzhou persona, travel route, and taste recommendations.",
+      "开始测试": "Start Quiz",
+      "选择更接近你的选项": "Choose the option closer to you",
+      "正在为你生成杭州人格……": "Generating your Hangzhou persona...",
+      "正在匹配你的西湖节奏": "Matching your West Lake rhythm",
+      "正在分析你的江南偏好": "Analyzing your Jiangnan preferences",
+      "正在寻找最适合你的杭州入口": "Finding your best Hangzhou entry point",
+      "你的杭州人格是：苏轼": "Your Hangzhou Persona: Su Shi",
+      "你的杭州人格是：白素贞": "Your Hangzhou Persona: Bai Suzhen",
+      "你的杭州人格是：苏小小": "Your Hangzhou Persona: Su Xiaoxiao",
+      "你的杭州人格是：乾隆": "Your Hangzhou Persona: Qianlong",
+      "你的杭州人格是：杨万里": "Your Hangzhou Persona: Yang Wanli",
+      "你进入一座城市的方式，从来不是打卡，而是寻找它被写下、被建成、被记住的痕迹。": "You enter a city not by checking off spots, but by tracing what has been written, built, and remembered.",
+      "有文化厚度": "Cultural depth",
+      "喜欢历史和人物": "History and people",
+      "会被典故打动": "Moved by allusions",
+      "喜欢慢慢理解一座城市": "Understand a city slowly",
+      "看重时间感与记忆感": "Value time and memory",
+      "你更容易被人物、历史、典故、文化厚度打动。对你来说，杭州不只是“好看”，它更像是一座被人一步步塑造出来的城市：有人在这里写诗，有人在这里做官，有人在这里留下名字。而你想顺着这些痕迹，去理解西湖。": "You are drawn to people, history, and references. To you, Hangzhou is not only beautiful; it is a city shaped step by step by those who wrote, governed, and left their names here.",
+      "苏轼不仅是写下西湖名句的人，也是杭州文化记忆中最重要的人物之一。对很多人来说，西湖之所以不只是风景，也正因为它总和苏轼这样的名字连在一起：被观看、被书写，也被留在现实空间里。": "Su Shi is not only a poet of West Lake but also one of the central figures in Hangzhou's cultural memory. West Lake becomes more than scenery because it remains linked to names like his.",
+      "这道菜适合你，不只是因为它有名。它更像是一种把杭州的人文气质浓缩进味道里的方式。东坡肉对应的，是一种更厚重、更沉静、更有人物感的杭州。它带着文人记忆、历史痕迹，也带着“慢下来才能体会”的层次。": "This dish suits you not only for its fame but for how it condenses Hangzhou's humanistic spirit into flavor.",
+      "苏东坡纪念馆 → 苏堤漫步 → 花港观鱼 / 雷峰塔周边 → 传统杭帮菜餐厅": "Su Shi Memorial Hall → Walk along Su Causeway → Huagang/Leifeng area → Classic Hangzhou restaurant",
+      "这条路线适合慢慢走。它不是为了最快看到最多景点，而是为了让你先进入“人”的历史，再回到“湖”的风景。": "This route is made for a slow pace: enter the history of people first, then return to the scenery of the lake.",
+      "苏东坡纪念馆": "Su Shi Memorial Hall",
+      "从这里开始，你会先遇到“人”。在进入西湖的景之前，先进入苏轼留下的文化痕迹。": "Start with the person before the scenery, stepping first into Su Shi's cultural traces.",
+      "苏堤漫步": "Walk Along Su Causeway",
+      "沿着苏堤慢慢走，你会更容易把西湖看成一处被塑造、被命名、被书写过的空间。": "Walking Su Causeway helps you see West Lake as a place shaped, named, and written over time.",
+      "花港观鱼 / 雷峰塔周边停留": "Pause at Huagang / Leifeng Area",
+      "不需要太赶，把历史感重新放回现实空间，感受杭州层层叠叠的时间感。": "No need to rush; place history back into real space and feel Hangzhou's layered time.",
+      "味庄 / 传统杭帮菜老牌餐厅": "Weizhuang / Traditional Hangzhou Restaurant",
+      "你更适合去强调经典杭帮菜、传统感较强、适合慢慢坐下来吃一顿饭的地方。": "You fit places that emphasize classic Hangzhou dishes and a slower meal rhythm.",
+      "经典": "Classic",
+      "稳重": "Steady",
+      "有来历": "With heritage",
+      "可以慢慢坐下来感受": "Good for lingering",
+      "你适合的杭州，不是第一眼就结束的杭州。": "Your Hangzhou is not one that ends at first glance.",
+      "你会在故事里看风景，也会在风景里继续寻找人。": "You see scenery through stories, and stories through scenery.",
+      "你会先走进烟雨里的桥和塔，再把这座城的光、水和故事慢慢收进记忆。": "You enter first through bridges and pagodas in misty rain, then gather this city's light, water, and stories.",
+      "雨中湖桥": "Lake bridges in rain",
+      "塔影与水色": "Pagoda silhouette and water tone",
+      "偏爱清润口感": "Prefer clear, moist flavors",
+      "喜欢慢慢走的路线": "Like slow walking routes",
+      "江南传说气息": "Jiangnan legend mood",
+      "你对杭州的偏好，常常落在桥、雨、湖面和塔影之间。你不急着把景点看完，更愿意把脚步放慢，在细雨和水汽里找到西湖最耐看的层次。": "Your Hangzhou preference sits between bridges, rain, lake surface, and pagoda silhouettes. You slow down and find West Lake's most durable beauty in drizzle and moisture.",
+      "白素贞是西湖文化中最具辨识度的人物之一。断桥、雷峰塔与湖上烟雨，把她的故事长期留在杭州的空间想象里，也让“西湖”不仅是风景，更是一段会被反复讲述的城市记忆。": "Bai Suzhen is one of the most recognizable figures in West Lake culture. Broken Bridge, Leifeng Pagoda, and lake mist keep her story alive in Hangzhou's spatial imagination.",
+      "推荐菜：清汤鱼圆": "Recommended Dish: Fish Balls in Clear Soup",
+      "这道菜入口清润、质地柔滑，和你偏爱的雨景西湖很契合。它不抢味，却很耐吃，像湖面薄雾一样把细节慢慢展开。": "This dish is clear and smooth, matching your preferred rainy West Lake mood.",
+      "断桥残雪一带 → 白堤沿线 → 雷峰塔远眺点 → 湖边晚餐": "Broken Bridge Area → Bai Causeway → Leifeng Viewpoint → Lakeside Dinner",
+      "这条路线强调“桥—湖—塔”的连续视野。天气有一点水汽时，会更接近你想要的西湖气质。": "This route emphasizes a continuous bridge-lake-pagoda view, especially fitting when the air is moist.",
+      "断桥一带": "Broken Bridge Area",
+      "先从桥面与湖面的关系开始，适合边走边看，不需要太快。": "Start with bridge-and-lake relations; walk and watch without rushing.",
+      "白堤沿线": "Along Bai Causeway",
+      "路段平缓、视野开阔，树影和水面交替出现，适合停停走走。": "This section is gentle and open, with alternating tree shadow and water views.",
+      "雷峰塔远眺点": "Leifeng Distant Viewpoint",
+      "把塔影放进远景，桥和湖的画面会更完整。": "Placing the pagoda in the distance completes the bridge-lake composition.",
+      "西湖边临水杭帮菜餐厅": "Lakeside Hangzhou Restaurant",
+      "更适合选窗边位置，能同时看到湖面和行人，把吃饭和看景连起来。": "Choose a window seat to connect dining with lake viewing.",
+      "视野开阔": "Open view",
+      "清润口味": "Clear, light taste",
+      "适合雨天或傍晚": "Great in rain or dusk",
+      "离湖边步行线近": "Close to lakeside walks",
+      "你适合的杭州，是雨丝落在桥面上的杭州。": "Your Hangzhou is where drizzle lands on bridge decks.",
+      "你会在水光与塔影之间，记住它最柔软的一面。": "You remember its gentlest side between water light and pagoda silhouettes.",
+      "你记住一座城市的方式，不是靠它说了什么，而是靠它留给你的茶香、山路和那种被精心安放过的清雅。": "You remember a city not by what it says, but by tea aroma, mountain paths, and carefully placed elegance.",
+      "清雅": "Elegant",
+      "细腻": "Refined",
+      "注重氛围": "Atmosphere-focused",
+      "喜欢自然与留白": "Love nature and negative space",
+      "对茶和审美敏感": "Sensitive to tea and aesthetics",
+      "你更容易被氛围、细节、清雅、山水与审美感打动。对你来说，杭州最迷人的地方，不是厚重地告诉你“它有多重要”，而是让你在茶香、山路、景色和一顿饭里，慢慢体会到这座城市很轻、很稳、很讲究的一面。": "You are drawn to atmosphere, detail, and elegant landscape. Hangzhou charms you through tea, paths, scenery, and meals rather than loud statements.",
+      "乾隆与杭州、西湖的关系，更多不在于“创造”这片风景，而在于他通过南巡、题咏与品茶，把西湖和龙井茶一起放进了更讲究、清雅、可细细游赏的江南想象里。": "Qianlong's link to Hangzhou lies less in creating this scenery and more in placing West Lake and Longjing tea into a refined Jiangnan imagination through imperial tours, inscriptions, and tea tasting.",
+      "“十八棵御茶”是乾隆与杭州最有名的龙井典故之一。相传乾隆南巡到龙井时，曾在狮峰山下胡公庙前采茶，后来将当地十八棵茶树封为“御茶”，并令其岁岁采制、进贡宫中。也因为这个故事，龙井茶不再只是杭州的一种茶，而渐渐成了西湖山水、茶香与清雅审美的一部分。": "\"Eighteen Imperial Tea Trees\" is one of the best-known Longjing stories tied to Qianlong and Hangzhou.",
+      "这道菜适合你，是因为它几乎把杭州最清雅的一面都放进去了：茶、春天、轻盈、细节、不过度张扬的鲜味。它不是很厚重，却很讲究；不是很热闹，却很容易让人记住。这就是你会喜欢的杭州。": "This dish gathers Hangzhou's elegant side: tea, spring, lightness, detail, and restrained freshness.",
+      "中国茶叶博物馆双峰馆区 → 龙井路周边茶园视野 → 西湖边安静停留 → 清雅型杭帮菜餐厅": "China Tea Museum (Shuangfeng) → Longjing Road tea views → Quiet West Lake stop → Elegant Hangzhou dining",
+      "这条路线不是为了“看完”，而是为了让你进入杭州更轻、更细的那一层。你适合从茶开始，从山路开始，再慢慢回到湖边。": "This route is not about finishing sights; it leads you into Hangzhou's lighter and subtler layer.",
+      "中国茶叶博物馆双峰馆区": "China Tea Museum (Shuangfeng)",
+      "从茶开始认识杭州，会很适合你。这里像是一把钥匙，让你先进入龙井、西湖与杭州气质之间的联系。": "Starting from tea is ideal for you; it unlocks links between Longjing, West Lake, and Hangzhou's temperament.",
+      "龙井路周边茶园视野": "Tea Garden View Around Longjing Road",
+      "这里不是很强烈、很热闹的景，但很适合会被细节和氛围打动的人。": "The scenery here is not loud or intense, but perfect for those who value detail and atmosphere.",
+      "西湖边安静停留": "Quiet Pause by West Lake",
+      "不需要密集打卡，让风、光和茶香慢慢进入记忆。你适合的是会留白的杭州。": "No dense check-ins needed; let wind, light, and tea fragrance settle into memory.",
+      "山外山 / 清雅型杭帮菜餐厅": "Shanwai Shan / Elegant Hangzhou Restaurant",
+      "你更适合去环境与菜都偏清雅、和山水园林关系更近的餐厅。": "You fit restaurants where both setting and dishes are elegant and close to landscape gardens.",
+      "留白": "Negative space",
+      "季节感": "Seasonality",
+      "景和味道都刚刚好": "Scenery and flavor in balance",
+      "你适合的杭州，不需要说得太满。": "Your Hangzhou does not need to say too much.",
+      "你会在茶香、山路和轻一点的味道里，认出它真正动人的地方。": "You recognize its most moving side in tea aroma, mountain paths, and lighter flavors.",
+      "你记住一座城市的方式，更像记住一幅画面：风、荷叶、光和那个刚好属于西湖的夏天。": "You remember a city as an image: wind, lotus leaves, light, and a summer that belongs to West Lake.",
+      "感性": "Sensitive",
+      "季节感强": "Strong seasonal sense",
+      "会被诗句和意境打动": "Moved by poetic imagery",
+      "喜欢轻盈与留白": "Prefer lightness and space",
+      "通过画面记住城市": "Remember cities through images",
+      "你更容易被画面、季节、诗意与意境打动。对你来说，杭州最迷人的地方，不一定是最有分量的历史，而是某个刚刚好的瞬间：风吹过荷叶、水面泛光、景色轻轻成立。你理解西湖的方式，更像是在感受它，而不是定义它。": "You are easily moved by images, season, and poetic atmosphere. For you, Hangzhou's charm lies in just-right moments.",
+      "杨万里写下了很多人一想到西湖荷花就会想起的诗句。对你来说，西湖最动人的地方，也正是这种被诗留住的季节感：不是抽象的“美”，而是一种很具体、很有画面感的夏日西湖。": "Yang Wanli wrote verses many recall when thinking of West Lake lotus.",
+      "这道菜适合你，不是因为它最厚重，而是因为它够轻、够鲜、够像西湖留给人的那种清亮感。对你来说，杭州的味道更像一幅有空气感的画，而龙井虾仁正好保留了这种轻盈、细腻和季节气息。": "This dish suits you for its light, fresh clarity, like the bright feel West Lake leaves behind.",
+      "曲院风荷 → 湖边荷花与夏日观景路线 → 安静停留点 → 更有景观感与诗意感的餐厅": "Quyuan Fenghe → Lotus-and-summer lakeside route → Quiet pause point → Scenic poetic restaurant",
+      "这条路线适合在夏天或有荷景的时候体验。你不需要很满的安排，你更适合顺着画面、光线和风去记住西湖。": "This route is best in summer or lotus season; follow light, wind, and visuals rather than dense scheduling.",
+      "曲院风荷": "Quyuan Fenghe",
+      "从荷花开始认识西湖，会非常适合你。这里让“诗意”不是一句话，而是可以被真实看到的画面。": "Starting with lotus is ideal for you; poetry becomes a visible scene here.",
+      "湖边荷花与夏日观景路线": "Lakeside Lotus Summer Route",
+      "你适合顺着季节去看西湖，而不是只看最标准的景点。": "You are suited to seeing West Lake through seasons, not only standard sights.",
+      "安静停留点": "Quiet Pause Point",
+      "对你来说，杭州最动人的时刻往往发生在停下来之后。给风景一点时间，它才会真正进入记忆。": "For you, Hangzhou's best moments happen after you pause.",
+      "西湖边更偏景观与诗意感的餐厅": "A More Scenic and Poetic Lakeside Restaurant",
+      "你更适合去环境里有空气感、有季节感、坐下来就像继续待在风景里的餐厅。": "You fit restaurants with airy space and seasonality where sitting feels like staying in the scenery.",
+      "轻盈": "Light",
+      "有画面感": "Visual",
+      "季节感强": "Seasonal",
+      "适合慢慢看景": "Good for slow viewing",
+      "吃饭像在延续一段西湖记忆": "Dining extends a West Lake memory",
+      "你适合的杭州，是会突然在一个瞬间成立的杭州。": "Your Hangzhou forms in a sudden moment.",
+      "你会先记住风景里的诗意，再慢慢记住这座城。": "You remember poetry in scenery first, then the city itself.",
+      "你偏爱的杭州，常常藏在桥边柳影、短短石阶和可以久坐的茶点时光里。": "Your preferred Hangzhou is often hidden in willow shadows, short steps, and long tea-snack pauses.",
+      "西泠桥与孤山": "Xiling Bridge and Solitary Hill",
+      "柳色与水边小路": "Willow tone and lakeside paths",
+      "桂花与茶点": "Osmanthus and tea snacks",
+      "慢步与停留": "Slow walks and pauses",
+      "轻柔而细致": "Soft and delicate",
+      "你更适合从小尺度的景进入杭州：一座桥、一段湖边窄路、一处能坐下来的窗边位置。你不追求铺满行程，而是把注意力放在细节和停留时间上。": "You are best entering Hangzhou through small-scale scenes: a bridge, a narrow lakeside path, and a seat by the window.",
+      "苏小小是杭州地方记忆中非常鲜明的人物。西泠桥与相关传说让她长期与西湖相连，也让这座城市除了山水与名胜之外，多了一层温柔、轻巧、可回望的文化气质。": "Su Xiaoxiao is a vivid figure in Hangzhou's local memory, linked to West Lake through Xiling Bridge and related stories.",
+      "推荐菜：桂花藕粉": "Recommended Dish: Osmanthus Lotus Root Starch",
+      "桂花藕粉清甜柔滑、香气轻，适合慢慢吃。它和你偏好的步调一致：不需要太强烈，却能把杭州的细腻留在口中很久。": "Osmanthus lotus root starch is gently sweet and smooth, ideal for a slow pace.",
+      "西泠桥 → 孤山小路 → 湖边茶点停留 → 黄昏时分慢步返回": "Xiling Bridge → Solitary Hill path → Lakeside tea break → Slow return at dusk",
+      "路线不求长，重点在于沿线的树影、水面和可停留的空间。": "The route is short by design, focusing on tree shadows, water, and pause-friendly spaces.",
+      "西泠桥": "Xiling Bridge",
+      "从桥边开始，把节奏慢下来，先看水面和柳枝的变化。": "Start by the bridge and slow down, watching water and willow changes first.",
+      "孤山小路": "Solitary Hill Path",
+      "路段安静，适合边走边看，不需要密集打卡。": "This stretch is quiet and suited to a walk-and-watch rhythm.",
+      "茶点停留": "Tea-Snack Pause",
+      "找一个靠窗的位置坐一会儿，让风景和味道自然衔接。": "Sit by a window and let scenery and flavor connect naturally.",
+      "湖边茶点与轻食小馆": "Lakeside Tea-Snack and Light-Food Spot",
+      "适合选择空间不大、安静、可久坐的店，重点是窗边视野和轻口味。": "Pick small, quiet places good for lingering, with window views and lighter tastes.",
+      "桂花系甜点": "Osmanthus desserts",
+      "轻食与热茶": "Light food and hot tea",
+      "靠近湖边步行线": "Near lakeside walking routes",
+      "节奏从容": "Unhurried rhythm",
+      "你适合的杭州，是桥边柳影里慢慢展开的杭州。": "Your Hangzhou unfolds slowly in willow shadows by the bridge.",
+      "你会在细小的景和轻柔的味道里，把它记得很久。": "You will remember it for a long time through small scenes and gentle flavors.",
+      "人格解析": "Personality Analysis",
+      "人物介绍": "Historical Figure",
+      "推荐菜：东坡肉": "Recommended Dish: Dongpo Pork",
+      "推荐菜：西湖醋鱼": "Recommended Dish: West Lake Vinegar Fish",
+      "推荐菜：龙井虾仁": "Recommended Dish: Longjing Shrimp",
+      "推荐旅游路线": "Recommended Route",
+      "推荐饭店": "Recommended Restaurant",
+      "重新测试": "Restart",
+      "十八颗御茶树": "Eighteen Imperial Tea Trees"
+    };
+
+    function getQuestions() {
+      return currentLang === "zh" ? questions : questionsEn;
+    }
+
+    function show(page) {
+      cards.forEach((card) => {
+        card.classList.toggle("active", card.dataset.page === page);
+      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function collectTextNodes() {
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+        acceptNode(node) {
+          if (!node.nodeValue.trim()) {
+            return NodeFilter.FILTER_REJECT;
+          }
+          const parentTag = node.parentElement?.tagName;
+          if (["SCRIPT", "STYLE"].includes(parentTag)) {
+            return NodeFilter.FILTER_REJECT;
+          }
+          return NodeFilter.FILTER_ACCEPT;
+        }
+      });
+      while (walker.nextNode()) {
+        textNodes.push({ node: walker.currentNode, original: walker.currentNode.nodeValue });
+      }
+    }
+
+    function applyStaticLanguage(lang) {
+      textNodes.forEach(({ node, original }) => {
+        if (lang === "zh") {
+          node.nodeValue = original;
+          return;
+        }
+        const trimmed = original.trim();
+        if (staticTextMap[trimmed]) {
+          node.nodeValue = original.replace(trimmed, staticTextMap[trimmed]);
+        }
+      });
+      translateBtnLabel.textContent = lang === "zh" ? "EN" : "中文";
+      stepHint.textContent = lang === "zh" ? "选择更接近你的选项" : "Choose the option closer to you";
+      updateTabLabels();
+    }
+
+    function renderQuestion() {
+      const questionSet = getQuestions();
+      const q = questionSet[current];
+      questionTitle.textContent = q.title;
+      stepText.textContent = currentLang === "zh"
+        ? `第 ${current + 1} / ${questionSet.length} 题`
+        : `Question ${current + 1} / ${questionSet.length}`;
+      progressBar.style.width = `${((current + 1) / questionSet.length) * 100}%`;
+
+      optionsWrap.innerHTML = "";
+      optionsWrap.classList.toggle("options-image", q.type === "image-grid");
+
+      q.options.forEach((option) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "option-btn";
+        if (option.image) {
+          btn.classList.add("image-option");
+          btn.innerHTML = `<img src="${option.image}" alt="${option.text}">`;
+        } else {
+          btn.textContent = option.text;
+        }
+        btn.addEventListener("click", () => answer(option));
+        optionsWrap.appendChild(btn);
+      });
+    }
+
+    function answer(option) {
+      const score = option.score || {};
+      Object.entries(score).forEach(([key, value]) => {
+        scores[key] = (scores[key] || 0) + value;
+      });
+
+      if (getQuestions()[current].type === "image-grid") {
+        if (Array.isArray(option.tieKey)) {
+          lastImageChoice = option.tieKey;
+        } else if (option.tieKey) {
+          lastImageChoice = [option.tieKey];
+        }
+      }
+
+      current += 1;
+
+      if (current < getQuestions().length) {
+        renderQuestion();
+        return;
+      }
+      runGenerating();
+    }
+
+    function resolveWinner() {
+      const maxScore = Math.max(...Object.values(scores));
+      let tied = Object.keys(scores).filter((key) => scores[key] === maxScore);
+
+      if (tied.length === 1) {
+        return tied[0];
+      }
+
+      if (Array.isArray(lastImageChoice)) {
+        const matched = lastImageChoice.find((key) => tied.includes(key));
+        if (matched) {
+          return matched;
+        }
+      }
+
+      return tiePriority.find((key) => tied.includes(key));
+    }
+
+    function runGenerating() {
+      show("generating");
+      generatingItems.forEach((item) => item.classList.remove("active"));
+      generatingItems.forEach((item, idx) => {
+        setTimeout(() => item.classList.add("active"), (idx + 1) * 620);
+      });
+
+      setTimeout(() => {
+        const winner = resolveWinner();
+        show(`result-${winner}`);
+      }, 2500);
+    }
+
+    function initResultTabs() {
+      const tabConfig = ["profile", "food", "route"];
+
+      const resultCards = cards.filter((card) => card.dataset.page.startsWith("result-"));
+
+      resultCards.forEach((card) => {
+        const sections = [...card.querySelectorAll(":scope > .section")];
+        if (!sections.length) {
+          return;
+        }
+
+        const buckets = {
+          profile: [],
+          food: [],
+          route: []
+        };
+
+        sections.forEach((section) => {
+          const heading = section.querySelector("h3")?.textContent || "";
+          if (heading.includes("推荐菜") || heading.includes("推荐饭店")) {
+            buckets.food.push(section);
+          } else if (heading.includes("推荐旅游路线")) {
+            buckets.route.push(section);
+          } else {
+            buckets.profile.push(section);
+          }
+        });
+
+        const tabBar = document.createElement("div");
+        tabBar.className = "result-tabs";
+
+        const contentWrap = document.createElement("div");
+        contentWrap.className = "result-tab-content";
+
+        const panes = {};
+        tabConfig.forEach((id) => {
+          const pane = document.createElement("div");
+          pane.className = "result-tab-pane";
+          pane.dataset.tabPane = id;
+          panes[id] = pane;
+          contentWrap.appendChild(pane);
+        });
+
+        tabConfig.forEach((id) => {
+          buckets[id].forEach((section) => panes[id].appendChild(section));
+        });
+
+        function activateTab(activeId) {
+          [...tabBar.querySelectorAll(".result-tab-btn")].forEach((btn) => {
+            btn.classList.toggle("active", btn.dataset.tabTarget === activeId);
+          });
+          Object.keys(panes).forEach((id) => {
+            panes[id].classList.toggle("active", id === activeId);
+          });
+        }
+
+        tabConfig.forEach((id) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "result-tab-btn";
+          btn.dataset.tabTarget = id;
+          btn.textContent = tabLabels[currentLang][id];
+          btn.addEventListener("click", () => activateTab(id));
+          tabBar.appendChild(btn);
+        });
+
+        const anchor = card.querySelector(".tag-list");
+        if (anchor) {
+          anchor.insertAdjacentElement("afterend", tabBar);
+          tabBar.insertAdjacentElement("afterend", contentWrap);
+        }
+
+        activateTab("profile");
+      });
+    }
+
+    function updateTabLabels() {
+      const labelSet = tabLabels[currentLang];
+      document.querySelectorAll(".result-tab-btn").forEach((btn) => {
+        const key = btn.dataset.tabTarget;
+        btn.textContent = labelSet[key];
+      });
+    }
+
+    function reset() {
+      current = 0;
+      scores = { sushi: 0, qianlong: 0, yangwanli: 0, baisuzhen: 0, suxiaoxiao: 0 };
+      lastImageChoice = null;
+      renderQuestion();
+      show("cover");
+    }
+
+    startBtn.addEventListener("click", () => {
+      renderQuestion();
+      show("quiz");
+    });
+
+    initResultTabs();
+    collectTextNodes();
+    applyStaticLanguage("zh");
+    translateBtn.addEventListener("click", () => {
+      currentLang = currentLang === "zh" ? "en" : "zh";
+      applyStaticLanguage(currentLang);
+      if (cards.some((card) => card.classList.contains("active") && card.dataset.page === "quiz")) {
+        renderQuestion();
+      }
+    });
+    restartButtons.forEach((btn) => btn.addEventListener("click", reset));
+  </script>
+</body>
+</html>
